@@ -1,1 +1,17 @@
-main(List<String> args) {}
+import 'package:flutter/material.dart';
+
+main(List<String> args) {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  build(context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('EasyList'),
+        ),
+      ),
+    );
+  }
+}
