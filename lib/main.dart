@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import './pages/auth.dart';
-
+//import './pages/auth.dart';
+import './pages/products_manager.dart';
+import './pages/products.dart';
 //import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
 void main() {
@@ -14,8 +15,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(context) {
     return MaterialApp(
-        theme: ThemeData(
-            accentColor: Colors.deepPurple, primarySwatch: Colors.deepOrange),
-        home: AuthPage());
+      theme: ThemeData(
+          accentColor: Colors.deepPurple, primarySwatch: Colors.deepOrange),
+      //home: AuthPage(),
+      routes: {
+        '/': (BuildContext context) => ProductsPage(),
+        '/productsManager': (BuildContext context) => ProductsManager(),
+      },
+    );
   }
 }
