@@ -17,9 +17,13 @@ class Products extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: _buildProductItem,
-      itemCount: products.length,
-    );
+    return products.length > 0
+        ? ListView.builder(
+            itemBuilder: _buildProductItem,
+            itemCount: products.length,
+          )
+        : Center(
+            child: Text('No items found. Please use the button above.'),
+          );
   }
 }
