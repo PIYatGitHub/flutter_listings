@@ -15,15 +15,22 @@ class Products extends StatelessWidget {
     );
   }
 
+  Widget _buildProductsList() {
+    Widget productCard = Center(
+      child: Text('No items found. Please use the button above.'),
+    );
+    if (products.length > 0) {
+      productCard = ListView.builder(
+        itemBuilder: _buildProductItem,
+        itemCount: products.length,
+      );
+    }
+
+    return productCard;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return products.length > 0
-        ? ListView.builder(
-            itemBuilder: _buildProductItem,
-            itemCount: products.length,
-          )
-        : Center(
-            child: Text('No items found. Please use the button above.'),
-          );
+    return _buildProductsList();
   }
 }

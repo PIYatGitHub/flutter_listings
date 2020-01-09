@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
-import './product_manager.dart';
+import 'package:flutter_listings/pages/home.dart';
+//import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
 void main() {
   //debugPaintSizeEnabled = true; //helps if you want to see the layout highlighted
@@ -13,14 +13,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(context) {
     return MaterialApp(
-      theme: ThemeData(
-          accentColor: Colors.deepPurple, primarySwatch: Colors.deepOrange),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('EasyList'),
-        ),
-        body: ProductManager(),
-      ),
-    );
+        theme: ThemeData(
+            accentColor: Colors.deepPurple, primarySwatch: Colors.deepOrange),
+        home: HomePage());
   }
 }
