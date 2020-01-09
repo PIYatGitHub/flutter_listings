@@ -1,37 +1,57 @@
 import 'package:flutter/material.dart';
 
 import './products.dart';
+import './product_create.dart';
+import './product_list.dart';
 
 class ProductsManager extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: Drawer(
-        child: Column(
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        drawer: Drawer(
+          child: Column(
+            children: <Widget>[
+              AppBar(
+                automaticallyImplyLeading: false,
+                title: Text('Choose'),
+              ),
+              ListTile(
+                title: Text('All Products'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => ProductsPage(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        appBar: AppBar(
+          title: Text('Products Manager'),
+          bottom: TabBar(
+            tabs: <Widget>[
+              Tab(
+                icon: Icon(Icons.create),
+                text: 'Create Product',
+              ),
+              Tab(
+                icon: Icon(Icons.list),
+                text: 'My Products',
+              )
+            ],
+          ),
+        ),
+        body: TabBarView(
           children: <Widget>[
-            AppBar(
-              automaticallyImplyLeading: false,
-              title: Text('Choose'),
-            ),
-            ListTile(
-              title: Text('All Products'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => ProductsPage(),
-                  ),
-                );
-              },
-            ),
+            ProductCreatePage(),
+            ProductsListPage(),
           ],
         ),
-      ),
-      appBar: AppBar(
-        title: Text('Products Manager'),
-      ),
-      body: Center(
-        child: Text('Welcome to the Products Manager'),
       ),
     );
   }
