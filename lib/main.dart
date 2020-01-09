@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_listings/pages/home.dart';
+import './pages/auth.dart';
+
 //import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
 void main() {
@@ -15,6 +16,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         theme: ThemeData(
             accentColor: Colors.deepPurple, primarySwatch: Colors.deepOrange),
-        home: HomePage());
+        home: AuthPage());
   }
 }
