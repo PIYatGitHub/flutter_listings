@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 //import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
-//import './pages/auth.dart';
+import './pages/auth.dart';
 import './pages/products_manager.dart';
-import './pages/products.dart';
+// import './pages/products.dart';
 import './pages/product.dart';
 import 'pages/not_found.dart';
 
@@ -21,9 +21,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Map<String, String>> _products = [];
+  List<Map<String, dynamic>> _products = [];
 
-  void _addProduct(Map<String, String> product) {
+  void _addProduct(Map<String, dynamic> product) {
     setState(() {
       _products.add(product);
     });
@@ -40,11 +40,11 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       theme: ThemeData(
           accentColor: Colors.deepPurple, primarySwatch: Colors.deepOrange),
-      //home: AuthPage(),
+      home: AuthPage(),
       routes: {
-        '/': (BuildContext context) =>
-            ProductsPage(_products, _addProduct, _deleteProduct),
-        '/productsManager': (BuildContext context) => ProductsManager(),
+        // '/': (BuildContext context) => ProductsPage(_products),
+        '/productsManager': (BuildContext context) =>
+            ProductsManager(_addProduct, _deleteProduct),
       },
       onGenerateRoute: (RouteSettings settings) {
         final List<String> pathElements = settings.name.split("/");
