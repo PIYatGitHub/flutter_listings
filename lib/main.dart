@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+//import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
 //import './pages/auth.dart';
 import './pages/products_manager.dart';
 import './pages/products.dart';
 import './pages/product.dart';
-//import 'package:flutter/rendering.dart'; //uncomment this in debug mode
+import 'pages/not_found.dart';
 
 void main() {
   //debugPaintSizeEnabled = true; //helps if you want to see the layout highlighted
@@ -48,13 +49,20 @@ class _MyAppState extends State<MyApp> {
       onGenerateRoute: (RouteSettings settings) {
         final List<String> pathElements = settings.name.split("/");
         if (pathElements[0] != '' || pathElements[1] != 'product') {
-          return null;
+          return MaterialPageRoute<bool>(
+            builder: (BuildContext context) => PageNotFound(),
+          );
         }
 
         final int index = int.parse(pathElements[2]);
         return MaterialPageRoute<bool>(
           builder: (BuildContext context) =>
               ProductPage(_products[index]['title'], _products[index]['image']),
+        );
+      },
+      onUnknownRoute: (RouteSettings settings) {
+        return MaterialPageRoute<bool>(
+          builder: (BuildContext context) => PageNotFound(),
         );
       },
     );
