@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -11,6 +12,23 @@ class _AuthPageState extends State<AuthPage> {
   String _email = '';
   String _password = '';
   bool _acceptTerms = true;
+
+  _validateEmail(String email) {
+    return RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(email);
+  }
+
+  _showToast(String msg) {
+    Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +73,12 @@ class _AuthPageState extends State<AuthPage> {
             RaisedButton(
               child: Text('LOGIN'),
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/');
+                final bool isValid = _validateEmail(_email);
+                if (!isValid) {
+                  _showToast('Invalid email');
+                } else {
+                  Navigator.pushReplacementNamed(context, '/');
+                }
               },
             ),
           ],
