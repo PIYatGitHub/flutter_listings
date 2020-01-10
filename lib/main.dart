@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 //import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
-//PROGRESS AS OF EOD: section 8 video
+//PROGRESS AS OF EOD: section 8 video 9 @ start
 
 // import './pages/auth.dart';
 import './pages/products_manager.dart';
