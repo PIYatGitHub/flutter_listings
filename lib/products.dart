@@ -21,7 +21,7 @@ class Products extends StatelessWidget {
                   context,
                   '/product/' + index.toString(),
                 ).then((bool value) {
-                  if (value) {
+                  if (!!value) {
                     onDelete(index);
                   }
                 }),
