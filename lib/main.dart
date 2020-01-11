@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 //PROGRESS AS OF EOD: section 8 video 9 @ start
 
-// import './pages/auth.dart';
+import './pages/auth.dart';
 import './pages/products_manager.dart';
 import './pages/products.dart';
 import './pages/product.dart';
@@ -42,9 +42,9 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       theme: ThemeData(
           accentColor: Colors.deepPurple, primarySwatch: Colors.deepOrange),
-      // home: AuthPage(),
+      home: AuthPage(),
       routes: {
-        '/': (BuildContext context) => ProductsPage(_products),
+        '/products': (BuildContext context) => ProductsPage(_products),
         '/productsManager': (BuildContext context) =>
             ProductsManager(_addProduct, _deleteProduct),
       },
