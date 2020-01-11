@@ -51,7 +51,9 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
       child: ListView(
         children: <Widget>[
           TextField(
-            decoration: InputDecoration(labelText: 'Product Title'),
+            decoration: InputDecoration(
+              labelText: 'Product Title',
+            ),
             onChanged: (String value) {
               setState(() {
                 _title = value;
