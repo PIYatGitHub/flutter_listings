@@ -48,53 +48,65 @@ class _AuthPageState extends State<AuthPage> {
           ),
         ),
         padding: EdgeInsets.all(10.0),
-        child: Container(
-          margin: EdgeInsets.all(10.0),
-          child: Column(
-            children: <Widget>[
-              TextField(
-                decoration: InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-                onChanged: (String value) {
-                  setState(() {
-                    _email = value;
-                  });
-                },
-              ),
-              TextField(
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                onChanged: (String value) {
-                  setState(() {
-                    _password = value;
-                  });
-                },
-              ),
-              SwitchListTile(
-                title: Text('Accept terms'),
-                value: _acceptTerms,
-                onChanged: (bool value) {
-                  setState(() {
-                    _acceptTerms = value;
-                  });
-                },
-              ),
-              SizedBox(
-                height: 10.0,
-              ),
-              RaisedButton(
-                color: Theme.of(context).primaryColor,
-                child: Text('LOGIN'),
-                onPressed: () {
-                  final bool isValid = _validateEmail(_email);
-                  if (!isValid) {
-                    _showToast('Invalid email');
-                  } else {
-                    Navigator.pushReplacementNamed(context, '/products');
-                  }
-                },
-              ),
-            ],
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  onChanged: (String value) {
+                    setState(() {
+                      _email = value;
+                    });
+                  },
+                ),
+                SizedBox(
+                  height: 10.0,
+                ),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                  obscureText: true,
+                  onChanged: (String value) {
+                    setState(() {
+                      _password = value;
+                    });
+                  },
+                ),
+                SwitchListTile(
+                  title: Text('Accept terms'),
+                  value: _acceptTerms,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _acceptTerms = value;
+                    });
+                  },
+                ),
+                SizedBox(
+                  height: 10.0,
+                ),
+                RaisedButton(
+                  color: Theme.of(context).primaryColor,
+                  child: Text('LOGIN'),
+                  onPressed: () {
+                    final bool isValid = _validateEmail(_email);
+                    if (!isValid) {
+                      _showToast('Invalid email');
+                    } else {
+                      Navigator.pushReplacementNamed(context, '/products');
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
