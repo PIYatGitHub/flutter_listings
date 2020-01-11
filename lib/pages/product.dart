@@ -3,8 +3,10 @@ import 'dart:async';
 
 class ProductPage extends StatelessWidget {
   final String title;
+  final String description;
   final String imageURL;
-  ProductPage(this.title, this.imageURL);
+  final double price;
+  ProductPage(this.title, this.description, this.imageURL, this.price);
 
   _showDeleteDialog(BuildContext context) {
     showDialog(
@@ -49,7 +51,26 @@ class ProductPage extends StatelessWidget {
             Image.asset(imageURL),
             Container(
               padding: EdgeInsets.all(10.0),
-              child: Text(title),
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontFamily: 'Oswald',
+                  fontSize: 26.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Container(
+              child: Text(
+                'Union Sq., San Francisco | \$ $price',
+                style: TextStyle(
+                  fontFamily: 'Oswald',
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            Container(
+              child: Text(description),
             ),
             Container(
               padding: EdgeInsets.all(10.0),
