@@ -36,14 +36,6 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
         fontSize: 16.0);
   }
 
-  _clearFields() {
-    setState(() {
-      _title = '';
-      _description = '';
-      _price = 0.0;
-    });
-  }
-
   Widget _buildTitleTextField() {
     return TextField(
       decoration: InputDecoration(
@@ -93,7 +85,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
     if (validationResult == 'OK') {
       widget.addProduct(product);
       _showToast('Product saved successfully!', false);
-      _clearFields();
+      Navigator.pushReplacementNamed(context, '/products');
     } else {
       _showToast(validationResult, true);
     }
