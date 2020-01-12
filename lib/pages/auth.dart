@@ -30,6 +30,80 @@ class _AuthPageState extends State<AuthPage> {
         fontSize: 16.0);
   }
 
+  DecorationImage _buildBgImage() {
+    return DecorationImage(
+      fit: BoxFit.cover,
+      colorFilter: ColorFilter.mode(
+        Colors.black.withOpacity(0.5),
+        BlendMode.dstATop,
+      ),
+      image: AssetImage('assets/background.jpg'),
+    );
+  }
+
+  Widget _buildEmailTextField() {
+    return TextField(
+      decoration: InputDecoration(
+        labelText: 'Email',
+        filled: true,
+        fillColor: Colors.white,
+      ),
+      keyboardType: TextInputType.emailAddress,
+      onChanged: (String value) {
+        setState(() {
+          _email = value;
+        });
+      },
+    );
+  }
+
+  Widget _buildPasswordTextField() {
+    return TextField(
+      decoration: InputDecoration(
+        labelText: 'Password',
+        filled: true,
+        fillColor: Colors.white,
+      ),
+      obscureText: true,
+      onChanged: (String value) {
+        setState(() {
+          _password = value;
+        });
+      },
+    );
+  }
+
+  SwitchListTile _buildListTile() {
+    return SwitchListTile(
+      title: Text('Accept terms'),
+      value: _acceptTerms,
+      onChanged: (bool value) {
+        setState(() {
+          _acceptTerms = value;
+        });
+      },
+    );
+  }
+
+  Widget _buildSizedBox() => SizedBox(height: 10.0);
+
+  Widget _buildRaisedBtn() {
+    return RaisedButton(
+      color: Theme.of(context).primaryColor,
+      child: Text('LOGIN'),
+      onPressed: _onLoginPressed,
+    );
+  }
+
+  void _onLoginPressed() {
+    final bool isValid = _validateEmail(_email);
+    if (!isValid) {
+      _showToast('Invalid email');
+    } else {
+      Navigator.pushReplacementNamed(context, '/products');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,73 +112,19 @@ class _AuthPageState extends State<AuthPage> {
       ),
       body: Container(
         decoration: BoxDecoration(
-          image: DecorationImage(
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.5),
-              BlendMode.dstATop,
-            ),
-            image: AssetImage('assets/background.jpg'),
-          ),
+          image: _buildBgImage(),
         ),
         padding: EdgeInsets.all(10.0),
         child: Center(
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  onChanged: (String value) {
-                    setState(() {
-                      _email = value;
-                    });
-                  },
-                ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  obscureText: true,
-                  onChanged: (String value) {
-                    setState(() {
-                      _password = value;
-                    });
-                  },
-                ),
-                SwitchListTile(
-                  title: Text('Accept terms'),
-                  value: _acceptTerms,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _acceptTerms = value;
-                    });
-                  },
-                ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                RaisedButton(
-                  color: Theme.of(context).primaryColor,
-                  child: Text('LOGIN'),
-                  onPressed: () {
-                    final bool isValid = _validateEmail(_email);
-                    if (!isValid) {
-                      _showToast('Invalid email');
-                    } else {
-                      Navigator.pushReplacementNamed(context, '/products');
-                    }
-                  },
-                ),
+                _buildEmailTextField(),
+                _buildSizedBox(),
+                _buildPasswordTextField(),
+                _buildListTile(),
+                _buildSizedBox(),
+                _buildRaisedBtn(),
               ],
             ),
           ),
