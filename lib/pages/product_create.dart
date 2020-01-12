@@ -44,41 +44,70 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
     });
   }
 
+  Widget _buildTitleTextField() {
+    return TextField(
+      decoration: InputDecoration(
+        labelText: 'Product Title',
+      ),
+      onChanged: (String value) {
+        setState(() {
+          _title = value;
+        });
+      },
+    );
+  }
+
+  Widget _buildDescriptionTextField() {
+    return TextField(
+      decoration: InputDecoration(labelText: 'Product Description'),
+      minLines: 2,
+      maxLines: 5,
+      onChanged: (String value) {
+        setState(() {
+          _description = value;
+        });
+      },
+    );
+  }
+
+  Widget _buildPriceTextField() {
+    return TextField(
+      decoration: InputDecoration(labelText: 'Product Price'),
+      keyboardType: TextInputType.number,
+      onChanged: (String value) {
+        setState(() {
+          _price = double.parse(value);
+        });
+      },
+    );
+  }
+
+  void _onSavePressed() {
+    final Map<String, dynamic> product = {
+      'title': _title,
+      'description': _description,
+      'price': _price,
+      'image': 'assets/food.jpg'
+    };
+    final String validationResult = _validateInputData(_title, _price);
+    if (validationResult == 'OK') {
+      widget.addProduct(product);
+      _showToast('Product saved successfully!', false);
+      _clearFields();
+    } else {
+      _showToast(validationResult, true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(10.0),
       child: ListView(
         children: <Widget>[
-          TextField(
-            decoration: InputDecoration(
-              labelText: 'Product Title',
-            ),
-            onChanged: (String value) {
-              setState(() {
-                _title = value;
-              });
-            },
-          ),
-          TextField(
-            decoration: InputDecoration(labelText: 'Product Description'),
-            minLines: 2,
-            maxLines: 5,
-            onChanged: (String value) {
-              setState(() {
-                _description = value;
-              });
-            },
-          ),
-          TextField(
-            decoration: InputDecoration(labelText: 'Product Price'),
-            keyboardType: TextInputType.number,
-            onChanged: (String value) {
-              setState(() {
-                _price = double.parse(value);
-              });
-            },
-          ),
+          _buildTitleTextField(),
+          _buildDescriptionTextField(),
+          _buildPriceTextField(),
           SizedBox(
             height: 10.0,
           ),
@@ -86,23 +115,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
             child: Text('SAVE'),
             color: Theme.of(context).accentColor,
             textColor: Colors.white,
-            onPressed: () {
-              final Map<String, dynamic> product = {
-                'title': _title,
-                'description': _description,
-                'price': _price,
-                'image': 'assets/food.jpg'
-              };
-              final String validationResult =
-                  _validateInputData(_title, _price);
-              if (validationResult == 'OK') {
-                widget.addProduct(product);
-                _showToast('Product saved successfully!', false);
-                _clearFields();
-              } else {
-                _showToast(validationResult, true);
-              }
-            },
+            onPressed: _onSavePressed,
           ),
         ],
       ),
