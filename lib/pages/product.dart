@@ -37,6 +37,18 @@ class ProductPage extends StatelessWidget {
     );
   }
 
+  Widget _buildLocationPriceTag() {
+    return Container(
+      child: Text(
+        'Union Sq., San Francisco | \$ $price',
+        style: TextStyle(
+          fontFamily: 'Oswald',
+          color: Colors.grey,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -55,15 +67,7 @@ class ProductPage extends StatelessWidget {
               padding: EdgeInsets.all(10.0),
               child: TitleDefault(title),
             ),
-            Container(
-              child: Text(
-                'Union Sq., San Francisco | \$ $price',
-                style: TextStyle(
-                  fontFamily: 'Oswald',
-                  color: Colors.grey,
-                ),
-              ),
-            ),
+            _buildLocationPriceTag(),
             Container(
               child: Text(description),
             ),
