@@ -89,8 +89,8 @@ class _AuthPageState extends State<AuthPage> {
 
   Widget _buildRaisedBtn() {
     return RaisedButton(
-      color: Theme.of(context).primaryColor,
       child: Text('LOGIN'),
+      textColor: Colors.white,
       onPressed: _onLoginPressed,
     );
   }
