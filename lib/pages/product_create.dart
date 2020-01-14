@@ -11,28 +11,21 @@ class ProductCreatePage extends StatefulWidget {
 }
 
 class _ProductCreatePageState extends State<ProductCreatePage> {
-  String _title = '';
-  String _description = '';
-  double _price = 0.0;
+  final Map<String, dynamic> _formData = {
+    'title': null,
+    'description': null,
+    'price': null,
+    'image': 'assets/food.jpg'
+  };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  _validateInputData(String title, double price) {
-    if (title == '') {
-      return 'Title cannot be empty!';
-    }
-    if (price < 0.0) {
-      return 'Price must be greater or equal to zero!';
-    }
-    return 'OK';
-  }
-
-  _showToast(String message, bool isError) {
+  _showToast(String message) {
     Fluttertoast.showToast(
         msg: message,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIos: 1,
-        backgroundColor: isError ? Colors.red : Colors.green,
+        backgroundColor: Colors.green,
         textColor: Colors.white,
         fontSize: 16.0);
   }
@@ -40,9 +33,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
   Widget _buildTitleTextField() {
     return TextFormField(
       onSaved: (String value) {
-        setState(() {
-          _title = value;
-        });
+        _formData['title'] = value;
       },
       validator: (String value) {
         if (value.isEmpty || value.length < 5)
@@ -61,9 +52,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
       minLines: 2,
       maxLines: 5,
       onSaved: (String value) {
-        setState(() {
-          _description = value;
-        });
+        _formData['description'] = value;
       },
       validator: (String value) {
         if (value.isEmpty || value.length < 10)
@@ -78,9 +67,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
       decoration: InputDecoration(labelText: 'Product Price'),
       keyboardType: TextInputType.number,
       onSaved: (String value) {
-        setState(() {
-          _price = double.parse(value);
-        });
+        _formData['price'] = double.parse(value);
       },
       validator: (String value) {
         if (value.isEmpty ||
@@ -96,20 +83,9 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
       return;
     }
     _formKey.currentState.save();
-    final Map<String, dynamic> product = {
-      'title': _title,
-      'description': _description,
-      'price': _price,
-      'image': 'assets/food.jpg'
-    };
-    final String validationResult = _validateInputData(_title, _price);
-    if (validationResult == 'OK') {
-      widget.addProduct(product);
-      _showToast('Product saved successfully!', false);
-      Navigator.pushReplacementNamed(context, '/products');
-    } else {
-      _showToast(validationResult, true);
-    }
+    widget.addProduct(_formData);
+    _showToast('Product saved successfully!');
+    Navigator.pushReplacementNamed(context, '/products');
   }
 
   @override

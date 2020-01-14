@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -9,26 +8,14 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
-  String _email = '';
-  String _password = '';
-  bool _acceptTerms = true;
-
-  _validateEmail(String email) {
-    return RegExp(
-            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-        .hasMatch(email);
-  }
-
-  _showToast(String msg) {
-    Fluttertoast.showToast(
-        msg: msg,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIos: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
+  Map<String, dynamic> _loginData = {
+    'email': null,
+    'password': null,
+    'acceptTerms': false
+  };
+  final RegExp _emailMatcher = RegExp(
+      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   DecorationImage _buildBgImage() {
     return DecorationImage(
@@ -42,33 +29,37 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Widget _buildEmailTextField() {
-    return TextField(
+    return TextFormField(
       decoration: InputDecoration(
         labelText: 'Email',
         filled: true,
         fillColor: Colors.white,
       ),
       keyboardType: TextInputType.emailAddress,
-      onChanged: (String value) {
-        setState(() {
-          _email = value;
-        });
+      onSaved: (String value) {
+        _loginData['email'] = value;
+      },
+      validator: (String value) {
+        if (!_emailMatcher.hasMatch(value)) return 'Invalid email';
+        return null;
       },
     );
   }
 
   Widget _buildPasswordTextField() {
-    return TextField(
+    return TextFormField(
       decoration: InputDecoration(
         labelText: 'Password',
         filled: true,
         fillColor: Colors.white,
       ),
       obscureText: true,
-      onChanged: (String value) {
-        setState(() {
-          _password = value;
-        });
+      onSaved: (String value) {
+        _loginData['password'] = value;
+      },
+      validator: (String value) {
+        if (value.isEmpty || value.length < 6) return 'Invalid password';
+        return null;
       },
     );
   }
@@ -76,11 +67,9 @@ class _AuthPageState extends State<AuthPage> {
   SwitchListTile _buildListTile() {
     return SwitchListTile(
       title: Text('Accept terms'),
-      value: _acceptTerms,
+      value: _loginData['acceptTerms'],
       onChanged: (bool value) {
-        setState(() {
-          _acceptTerms = value;
-        });
+        _loginData['acceptTerms'] = value;
       },
     );
   }
@@ -91,17 +80,17 @@ class _AuthPageState extends State<AuthPage> {
     return RaisedButton(
       child: Text('LOGIN'),
       textColor: Colors.white,
-      onPressed: _onLoginPressed,
+      onPressed: _submitForm,
     );
   }
 
-  void _onLoginPressed() {
-    final bool isValid = _validateEmail(_email);
-    if (!isValid) {
-      _showToast('Invalid email');
-    } else {
-      Navigator.pushReplacementNamed(context, '/products');
+  void _submitForm() {
+    if (!_formKey.currentState.validate()) {
+      return;
     }
+    _formKey.currentState.save();
+
+    Navigator.pushReplacementNamed(context, '/products');
   }
 
   @override
@@ -112,24 +101,32 @@ class _AuthPageState extends State<AuthPage> {
       appBar: AppBar(
         title: Text('Login'),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          image: _buildBgImage(),
-        ),
-        padding: EdgeInsets.all(10.0),
-        child: Center(
-          child: SingleChildScrollView(
-            child: Container(
-              width: width,
-              child: Column(
-                children: <Widget>[
-                  _buildEmailTextField(),
-                  _buildSizedBox(),
-                  _buildPasswordTextField(),
-                  _buildListTile(),
-                  _buildSizedBox(),
-                  _buildRaisedBtn(),
-                ],
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            image: _buildBgImage(),
+          ),
+          padding: EdgeInsets.all(10.0),
+          child: Form(
+            key: _formKey,
+            child: Center(
+              child: SingleChildScrollView(
+                child: Container(
+                  width: width,
+                  child: Column(
+                    children: <Widget>[
+                      _buildEmailTextField(),
+                      _buildSizedBox(),
+                      _buildPasswordTextField(),
+                      _buildListTile(),
+                      _buildSizedBox(),
+                      _buildRaisedBtn(),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
