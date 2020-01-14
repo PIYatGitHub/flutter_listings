@@ -8,6 +8,7 @@ import './pages/products_manager.dart';
 import './pages/products.dart';
 import './pages/product.dart';
 import 'pages/not_found.dart';
+import './models/product.dart';
 
 void main() {
   //debugPaintSizeEnabled = true; //helps if you want to see the layout highlighted
@@ -23,11 +24,17 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Map<String, dynamic>> _products = [];
+  List<Product> _products = [];
 
-  void _addProduct(Map<String, dynamic> product) {
+  void _addProduct(Product product) {
     setState(() {
       _products.add(product);
+    });
+  }
+
+  void _updateProduct(int index, Product product) {
+    setState(() {
+      _products[index] = product;
     });
   }
 
@@ -49,8 +56,8 @@ class _MyAppState extends State<MyApp> {
       home: AuthPage(),
       routes: {
         '/products': (BuildContext context) => ProductsPage(_products),
-        '/productsManager': (BuildContext context) =>
-            ProductsManager(_addProduct, _deleteProduct, _products),
+        '/productsManager': (BuildContext context) => ProductsManager(
+            _addProduct, _updateProduct, _deleteProduct, _products),
       },
       onGenerateRoute: (RouteSettings settings) {
         final List<String> pathElements = settings.name.split("/");
@@ -63,10 +70,10 @@ class _MyAppState extends State<MyApp> {
         final int index = int.parse(pathElements[2]);
         return MaterialPageRoute<bool>(
           builder: (BuildContext context) => ProductPage(
-              _products[index]['title'],
-              _products[index]['description'],
-              _products[index]['image'],
-              _products[index]['price']),
+              _products[index].title,
+              _products[index].description,
+              _products[index].image,
+              _products[index].price),
         );
       },
       onUnknownRoute: (RouteSettings settings) {
