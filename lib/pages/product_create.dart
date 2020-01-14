@@ -14,6 +14,7 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
   String _title = '';
   String _description = '';
   double _price = 0.0;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   _validateInputData(String title, double price) {
     if (title == '') {
@@ -37,44 +38,64 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
   }
 
   Widget _buildTitleTextField() {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Product Title',
-      ),
-      onChanged: (String value) {
+    return TextFormField(
+      onSaved: (String value) {
         setState(() {
           _title = value;
         });
       },
+      validator: (String value) {
+        if (value.isEmpty || value.length < 5)
+          return 'Title is required and is 5+ characters long';
+        return null;
+      },
+      decoration: InputDecoration(
+        labelText: 'Product Title',
+      ),
     );
   }
 
   Widget _buildDescriptionTextField() {
-    return TextField(
+    return TextFormField(
       decoration: InputDecoration(labelText: 'Product Description'),
       minLines: 2,
       maxLines: 5,
-      onChanged: (String value) {
+      onSaved: (String value) {
         setState(() {
           _description = value;
         });
+      },
+      validator: (String value) {
+        if (value.isEmpty || value.length < 10)
+          return 'Description is required and is 10+ characters long';
+        return null;
       },
     );
   }
 
   Widget _buildPriceTextField() {
-    return TextField(
+    return TextFormField(
       decoration: InputDecoration(labelText: 'Product Price'),
       keyboardType: TextInputType.number,
-      onChanged: (String value) {
+      onSaved: (String value) {
         setState(() {
           _price = double.parse(value);
         });
       },
+      validator: (String value) {
+        if (value.isEmpty ||
+            !RegExp(r'^(?:[1-9]\d*|0)?(?:\.\d+)?$').hasMatch(value))
+          return 'Price is required and must be a number';
+        return null;
+      },
     );
   }
 
-  void _onSavePressed() {
+  void _submitForm() {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
+    _formKey.currentState.save();
     final Map<String, dynamic> product = {
       'title': _title,
       'description': _description,
@@ -97,23 +118,31 @@ class _ProductCreatePageState extends State<ProductCreatePage> {
     final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
     final double targetPadding = deviceWidth - targetWidth;
 
-    return Container(
-      margin: EdgeInsets.all(10.0),
-      child: ListView(
-        padding: EdgeInsets.symmetric(horizontal: targetPadding / 2),
-        children: <Widget>[
-          _buildTitleTextField(),
-          _buildDescriptionTextField(),
-          _buildPriceTextField(),
-          SizedBox(
-            height: 10.0,
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: Container(
+        margin: EdgeInsets.all(10.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: EdgeInsets.symmetric(horizontal: targetPadding / 2),
+            children: <Widget>[
+              _buildTitleTextField(),
+              _buildDescriptionTextField(),
+              _buildPriceTextField(),
+              SizedBox(
+                height: 10.0,
+              ),
+              RaisedButton(
+                child: Text('SAVE'),
+                textColor: Colors.white,
+                onPressed: _submitForm,
+              ),
+            ],
           ),
-          RaisedButton(
-            child: Text('SAVE'),
-            textColor: Colors.white,
-            onPressed: _onSavePressed,
-          ),
-        ],
+        ),
       ),
     );
   }
