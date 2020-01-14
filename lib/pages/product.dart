@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/ui_elements/title_default.dart';
+import '../models/product.dart';
+import '../scoped-models/products.dart';
 
 class ProductPage extends StatelessWidget {
-  final String title;
-  final String description;
-  final String imageURL;
-  final double price;
-  ProductPage(this.title, this.description, this.imageURL, this.price);
+  final int productIndex;
+  ProductPage(this.productIndex);
 
   _showDeleteDialog(BuildContext context) {
     showDialog(
@@ -37,10 +37,10 @@ class ProductPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLocationPriceTag() {
+  Widget _buildLocationPriceTag(double price) {
     return Container(
       child: Text(
-        'Union Sq., San Francisco | \$ $price',
+        'Union Sq., San Francisco | \$ ${price.toString()}',
         style: TextStyle(
           fontFamily: 'Oswald',
           color: Colors.grey,
@@ -56,31 +56,39 @@ class ProductPage extends StatelessWidget {
         Navigator.pop(context, false);
         return Future.value(false);
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-        ),
-        body: Column(
-          children: <Widget>[
-            Image.asset(imageURL),
-            Container(
-              padding: EdgeInsets.all(10.0),
-              child: TitleDefault(title),
+      child: ScopedModelDescendant<ProductsModel>(
+        builder: (BuildContext context, Widget child, ProductsModel model) {
+          final Product product = model.products[productIndex];
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(product.title),
             ),
-            _buildLocationPriceTag(),
-            Container(
-              child: Text(description),
+            body: Column(
+              children: <Widget>[
+                Image.asset(product.image),
+                Container(
+                  padding: EdgeInsets.all(10.0),
+                  child: TitleDefault(product.title),
+                ),
+                _buildLocationPriceTag(product.price),
+                SizedBox(
+                  height: 6.0,
+                ),
+                Container(
+                  child: Text(product.description),
+                ),
+                Container(
+                  padding: EdgeInsets.all(10.0),
+                  child: RaisedButton(
+                    child: Text('DELETE'),
+                    color: Theme.of(context).accentColor,
+                    onPressed: () => _showDeleteDialog(context),
+                  ),
+                )
+              ],
             ),
-            Container(
-              padding: EdgeInsets.all(10.0),
-              child: RaisedButton(
-                child: Text('DELETE'),
-                color: Theme.of(context).accentColor,
-                onPressed: () => _showDeleteDialog(context),
-              ),
-            )
-          ],
-        ),
+          );
+        },
       ),
     );
   }
