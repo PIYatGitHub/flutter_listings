@@ -32,6 +32,7 @@ class ProductsModel extends Model {
       isFavorite: newFavStatus,
     );
     updateProduct(updatedProduct);
+    notifyListeners();
   }
 
   void addProduct(Product product) {
