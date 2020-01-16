@@ -92,6 +92,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
           onPressed: () => _submitForm(
             model.addProduct,
             model.updateProduct,
+            model.selectProduct,
             model.selectedProductIndex,
           ),
         );
@@ -128,27 +129,32 @@ class _ProductEditPageState extends State<ProductEditPage> {
     );
   }
 
-  void _submitForm(Function addProduct, Function updateProduct,
+  void _submitForm(
+      Function addProduct, Function updateProduct, Function setSelectedProduct,
       [int selectedProductIndex]) {
     if (!_formKey.currentState.validate()) {
       return;
     }
     _formKey.currentState.save();
 
-    final Product product = Product(
-      title: _formData['title'],
-      description: _formData['description'],
-      image: _formData['image'],
-      price: _formData['price'],
-    );
-
     if (selectedProductIndex == null) {
-      addProduct(product);
+      addProduct(
+        _formData['title'],
+        _formData['description'],
+        _formData['price'],
+        _formData['image'],
+      );
     } else {
-      updateProduct(product);
+      updateProduct(
+        _formData['title'],
+        _formData['description'],
+        _formData['price'],
+        _formData['image'],
+      );
     }
     _showToast('Product saved successfully!');
-    Navigator.pushReplacementNamed(context, '/products');
+    Navigator.pushReplacementNamed(context, '/products')
+        .then((_) => setSelectedProduct(null));
   }
 
   @override
