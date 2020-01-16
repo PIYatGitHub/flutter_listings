@@ -1,19 +1,17 @@
-import 'package:scoped_model/scoped_model.dart';
-
 import '.././models/user.dart';
+import './connected_products.dart';
 
-class UserModel extends Model {
-  User _authenticatedUSer;
-
+class UserModel extends ConnectedProducts {
   User get authUser {
-    return _authenticatedUSer;
+    return authenticatedUser;
   }
 
   void login(String email, String password) {
-    _authenticatedUSer = User(
+    authenticatedUser = User(
       id: '1232533',
       email: email,
       password: password,
     );
+    print('AUTH AS: $authenticatedUser');
   }
 }
