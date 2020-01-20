@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:scoped_model/scoped_model.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/user.dart';
 import '../models/product.dart';
@@ -14,6 +17,19 @@ class ConnectedProductsModel extends Model {
     double price,
     String image,
   ) {
+    final Map<String, dynamic> productData = {
+      'title': title,
+      'description': description,
+      'image':
+          'https://cdn.pixabay.com/photo/2013/09/18/18/24/chocolate-183543_960_720.jpg',
+      'price': price,
+    };
+
+    http.post(
+      'https://flutterlistings.firebaseio.com/products.json',
+      body: json.encode(productData),
+    );
+
     final Product newProduct = Product(
       title: title,
       description: description,
