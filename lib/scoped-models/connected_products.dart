@@ -25,21 +25,25 @@ class ConnectedProductsModel extends Model {
       'price': price,
     };
 
-    http.post(
+    http
+        .post(
       'https://flutterlistings.firebaseio.com/products.json',
       body: json.encode(productData),
-    );
-
-    final Product newProduct = Product(
-      title: title,
-      description: description,
-      price: price,
-      image: image,
-      userEmail: _authenticatedUser.email,
-      userId: _authenticatedUser.id,
-    );
-    _products.add(newProduct);
-    notifyListeners();
+    )
+        .then((http.Response response) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      final Product newProduct = Product(
+        id: responseData['name'],
+        title: title,
+        description: description,
+        price: price,
+        image: image,
+        userEmail: _authenticatedUser.email,
+        userId: _authenticatedUser.id,
+      );
+      _products.add(newProduct);
+      notifyListeners();
+    });
   }
 }
 
@@ -77,6 +81,7 @@ class ProductsModel extends ConnectedProductsModel {
     final bool isFavorite = selectedProduct.isFavorite;
     final bool newFavStatus = !isFavorite;
     final Product updatedProduct = Product(
+        id: '123',
         title: selectedProduct.title,
         description: selectedProduct.description,
         image: selectedProduct.image,
@@ -99,6 +104,7 @@ class ProductsModel extends ConnectedProductsModel {
     String image,
   ) {
     final Product updatedProduct = Product(
+      id: '123',
       title: title,
       description: description,
       price: price,
@@ -123,6 +129,17 @@ class ProductsModel extends ConnectedProductsModel {
   void toggleDisplayMode() {
     _showFavorites = !_showFavorites;
     notifyListeners();
+  }
+
+  void fetchProducts() {
+    http
+        .get('https://flutterlistings.firebaseio.com/products.json')
+        .then((http.Response response) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      print(responseData);
+      // _products.add(newProduct);
+      // notifyListeners();
+    });
   }
 }
 
