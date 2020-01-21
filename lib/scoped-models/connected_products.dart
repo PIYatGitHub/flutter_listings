@@ -10,6 +10,7 @@ class ConnectedProductsModel extends Model {
   List<Product> _products = [];
   User _authenticatedUser;
   int _selProductIndex;
+  bool _isLoading = false;
 
   void addProduct(
     String title,
@@ -17,6 +18,7 @@ class ConnectedProductsModel extends Model {
     double price,
     String image,
   ) {
+    _isLoading = true;
     final Map<String, dynamic> productData = {
       'title': title,
       'description': description,
@@ -44,6 +46,7 @@ class ConnectedProductsModel extends Model {
         userId: _authenticatedUser.id,
       );
       _products.add(newProduct);
+      _isLoading = false;
       notifyListeners();
     });
   }
@@ -134,6 +137,7 @@ class ProductsModel extends ConnectedProductsModel {
   }
 
   void fetchProducts() {
+    _isLoading = true;
     http
         .get('https://flutterlistings.firebaseio.com/products.json')
         .then((http.Response response) {
@@ -153,6 +157,7 @@ class ProductsModel extends ConnectedProductsModel {
           fetchedProdList.add(product);
         });
         _products = fetchedProdList;
+        _isLoading = false;
         notifyListeners();
       }
     });
@@ -171,5 +176,11 @@ class UserModel extends ConnectedProductsModel {
       password: password,
     );
     print('AUTH AS: $_authenticatedUser');
+  }
+}
+
+class UtilityModel extends ConnectedProductsModel {
+  bool get isLoading {
+    return _isLoading;
   }
 }
