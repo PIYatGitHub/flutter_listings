@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:async';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,13 +12,14 @@ class ConnectedProductsModel extends Model {
   int _selProductIndex;
   bool _isLoading = false;
 
-  void addProduct(
+  Future<Null> addProduct(
     String title,
     String description,
     double price,
     String image,
   ) {
     _isLoading = true;
+    notifyListeners();
     final Map<String, dynamic> productData = {
       'title': title,
       'description': description,
@@ -29,7 +30,7 @@ class ConnectedProductsModel extends Model {
       'userId': _authenticatedUser.id,
     };
 
-    http
+    return http
         .post(
       'https://flutterlistings.firebaseio.com/products.json',
       body: json.encode(productData),
@@ -138,6 +139,7 @@ class ProductsModel extends ConnectedProductsModel {
 
   void fetchProducts() {
     _isLoading = true;
+    notifyListeners();
     http
         .get('https://flutterlistings.firebaseio.com/products.json')
         .then((http.Response response) {
@@ -159,6 +161,10 @@ class ProductsModel extends ConnectedProductsModel {
         _products = fetchedProdList;
         _isLoading = false;
         notifyListeners();
+      } else {
+        _isLoading = false;
+        notifyListeners();
+        return;
       }
     });
   }
