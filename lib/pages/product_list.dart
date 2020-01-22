@@ -4,7 +4,14 @@ import 'package:scoped_model/scoped_model.dart';
 import './product_edit.dart';
 import '../scoped-models/main.dart';
 
-class ProductsListPage extends StatelessWidget {
+class ProductsListPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _ProductsListPageState();
+  }
+}
+
+class _ProductsListPageState extends State<ProductsListPage> {
   Widget _buildEditButton(BuildContext context, int index, MainModel model) {
     return IconButton(
       icon: Icon(Icons.edit),
