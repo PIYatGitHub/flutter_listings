@@ -48,7 +48,7 @@ class _ProductsPageState extends State<ProductsPage> {
         if (model.displayedProducts.length > 0 && !model.isLoading) {
           content = Products();
         } else {
-          content = CircularProgressIndicator();
+          content = Center(child: CircularProgressIndicator());
         }
         return content;
       },

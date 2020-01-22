@@ -14,7 +14,7 @@ class _AuthPageState extends State<AuthPage> {
   Map<String, dynamic> _loginData = {
     'email': null,
     'password': null,
-    'acceptTerms': false
+    'acceptTerms': true
   };
   final RegExp _emailMatcher = RegExp(
       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
@@ -33,6 +33,7 @@ class _AuthPageState extends State<AuthPage> {
 
   Widget _buildEmailTextField() {
     return TextFormField(
+      initialValue: '1@2.m', //TODO: Remove later on!
       decoration: InputDecoration(
         labelText: 'Email',
         filled: true,
@@ -51,6 +52,7 @@ class _AuthPageState extends State<AuthPage> {
 
   Widget _buildPasswordTextField() {
     return TextFormField(
+      initialValue: '12746316212', //TODO: Remove later on!
       decoration: InputDecoration(
         labelText: 'Password',
         filled: true,
