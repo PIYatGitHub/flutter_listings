@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+//import 'package:flutter_listings/models/product.dart';
 import 'package:scoped_model/scoped_model.dart';
 //import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
-//PROGRESS AS OF EOD: section 8 video 9 @ start
+//PROGRESS AS OF EOD: section 12 video 13 @ end NOT QUITE FIXED YET!!!
 
 import './pages/auth.dart';
 import './pages/products_manager.dart';
@@ -42,7 +43,7 @@ class _MyAppState extends State<MyApp> {
         routes: {
           '/': (BuildContext context) => AuthPage(),
           '/products': (BuildContext context) => ProductsPage(model),
-          '/productsManager': (BuildContext context) => ProductsManager(),
+          '/productsManager': (BuildContext context) => ProductsManager(model),
         },
         onGenerateRoute: (RouteSettings settings) {
           final List<String> pathElements = settings.name.split("/");
@@ -52,9 +53,10 @@ class _MyAppState extends State<MyApp> {
             );
           }
 
-          final int index = int.parse(pathElements[2]);
+          final String productId = pathElements[2];
+          model.selectProduct(productId);
           return MaterialPageRoute<bool>(
-            builder: (BuildContext context) => ProductPage(index),
+            builder: (BuildContext context) => ProductPage(),
           );
         },
         onUnknownRoute: (RouteSettings settings) {

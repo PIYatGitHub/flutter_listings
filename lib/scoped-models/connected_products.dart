@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -9,8 +11,11 @@ import '../models/product.dart';
 class ConnectedProductsModel extends Model {
   List<Product> _products = [];
   User _authenticatedUser;
-  int _selProductIndex;
+  String _selProductId;
   bool _isLoading = false;
+  final String baseUrl = 'https://flutterlistings.firebaseio.com/';
+  final String imageUrl =
+      'https://cdn.pixabay.com/photo/2013/09/18/18/24/chocolate-183543_960_720.jpg';
 
   Future<Null> addProduct(
     String title,
@@ -23,18 +28,14 @@ class ConnectedProductsModel extends Model {
     final Map<String, dynamic> productData = {
       'title': title,
       'description': description,
-      'image':
-          'https://cdn.pixabay.com/photo/2013/09/18/18/24/chocolate-183543_960_720.jpg',
+      'image': imageUrl,
       'price': price,
       'userEmail': _authenticatedUser.email,
       'userId': _authenticatedUser.id,
     };
 
     return http
-        .post(
-      'https://flutterlistings.firebaseio.com/products.json',
-      body: json.encode(productData),
-    )
+        .post(baseUrl + 'products.json', body: json.encode(productData))
         .then((http.Response response) {
       final Map<String, dynamic> responseData = json.decode(response.body);
       final Product newProduct = Product(
@@ -68,26 +69,34 @@ class ProductsModel extends ConnectedProductsModel {
     return result;
   }
 
-  int get selectedProductIndex {
-    return _selProductIndex;
+  String get selectedProductId {
+    return _selProductId;
   }
 
   bool get displayFavsOnly {
     return _showFavorites;
   }
 
+  int get selectedProductIndex {
+    return _products.indexWhere((Product product) {
+      return product.id == _selProductId;
+    });
+  }
+
   Product get selectedProduct {
-    if (_selProductIndex == null) {
+    if (selectedProductId == null) {
       return null;
     }
-    return _products[_selProductIndex];
+    return _products.firstWhere((Product product) {
+      return product.id == _selProductId;
+    });
   }
 
   void toggleProductFavorite() {
     final bool isFavorite = selectedProduct.isFavorite;
     final bool newFavStatus = !isFavorite;
     final Product updatedProduct = Product(
-        id: '123',
+        id: selectedProduct.id,
         title: selectedProduct.title,
         description: selectedProduct.description,
         image: selectedProduct.image,
@@ -95,7 +104,7 @@ class ProductsModel extends ConnectedProductsModel {
         isFavorite: newFavStatus,
         userEmail: selectedProduct.userEmail,
         userId: selectedProduct.userId);
-    _products[_selProductIndex] = updatedProduct;
+    _products[selectedProductIndex] = updatedProduct;
     notifyListeners();
   }
 
@@ -103,32 +112,59 @@ class ProductsModel extends ConnectedProductsModel {
     return _products[index].isFavorite;
   }
 
-  void updateProduct(
+  Future<Null> updateProduct(
     String title,
     String description,
     double price,
     String image,
   ) {
-    final Product updatedProduct = Product(
-      id: '123',
-      title: title,
-      description: description,
-      price: price,
-      image: image,
-      userEmail: selectedProduct.userEmail,
-      userId: selectedProduct.userId,
-    );
-    _products[_selProductIndex] = updatedProduct;
+    _isLoading = true;
     notifyListeners();
+
+    final Map<String, dynamic> updateData = {
+      'title': title,
+      'description': description,
+      'price': price,
+      'image': imageUrl,
+      'userEmail': selectedProduct.userEmail,
+      'userId': selectedProduct.userId,
+    };
+
+    return http
+        .put(baseUrl + 'products/${selectedProduct.id}.json',
+            body: jsonEncode(updateData))
+        .then((http.Response response) {
+      final Product updatedProduct = Product(
+        id: selectedProduct.id,
+        title: title,
+        description: description,
+        price: price,
+        image: imageUrl,
+        userEmail: selectedProduct.userEmail,
+        userId: selectedProduct.userId,
+      );
+      _products[selectedProductIndex] = updatedProduct;
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
-  void deleteProduct() {
-    _products.removeAt(_selProductIndex);
+  Future<Null> deleteProduct() {
+    final deletedItemId = selectedProduct.id;
+    _products.removeAt(selectedProductIndex);
+    _selProductId = null;
+    _isLoading = true;
     notifyListeners();
+    return http
+        .delete(baseUrl + 'products/$deletedItemId.json')
+        .then((http.Response response) {
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
-  void selectProduct(int index) {
-    _selProductIndex = index;
+  void selectProduct(String productId) {
+    _selProductId = productId;
     notifyListeners();
   }
 
@@ -137,35 +173,32 @@ class ProductsModel extends ConnectedProductsModel {
     notifyListeners();
   }
 
-  void fetchProducts() {
+  Future<Null> fetchProducts() {
     _isLoading = true;
     notifyListeners();
-    http
-        .get('https://flutterlistings.firebaseio.com/products.json')
-        .then((http.Response response) {
+    return http.get(baseUrl + 'products.json').then((http.Response response) {
       final List<Product> fetchedProdList = [];
       final Map<String, dynamic> responseData = json.decode(response.body);
-      if (responseData != null) {
-        responseData.forEach((String productId, dynamic productData) {
-          final Product product = Product(
-            id: productId,
-            title: productData['title'],
-            description: productData['description'],
-            price: productData['price'],
-            image: productData['image'],
-            userEmail: productData['userEmail'],
-            userId: productData['userId'],
-          );
-          fetchedProdList.add(product);
-        });
-        _products = fetchedProdList;
-        _isLoading = false;
-        notifyListeners();
-      } else {
+      if (responseData == null) {
         _isLoading = false;
         notifyListeners();
         return;
       }
+      responseData.forEach((String productId, dynamic productData) {
+        final Product product = Product(
+          id: productId,
+          title: productData['title'],
+          description: productData['description'],
+          price: productData['price'],
+          image: productData['image'],
+          userEmail: productData['userEmail'],
+          userId: productData['userId'],
+        );
+        fetchedProdList.add(product);
+      });
+      _products = fetchedProdList;
+      _isLoading = false;
+      notifyListeners();
     });
   }
 }
@@ -188,5 +221,16 @@ class UserModel extends ConnectedProductsModel {
 class UtilityModel extends ConnectedProductsModel {
   bool get isLoading {
     return _isLoading;
+  }
+
+  void showSuccessToast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 }

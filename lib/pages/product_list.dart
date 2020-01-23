@@ -5,6 +5,8 @@ import './product_edit.dart';
 import '../scoped-models/main.dart';
 
 class ProductsListPage extends StatefulWidget {
+  final MainModel model;
+  ProductsListPage(this.model);
   @override
   State<StatefulWidget> createState() {
     return _ProductsListPageState();
@@ -12,11 +14,17 @@ class ProductsListPage extends StatefulWidget {
 }
 
 class _ProductsListPageState extends State<ProductsListPage> {
+  @override
+  initState() {
+    widget.model.fetchProducts();
+    super.initState();
+  }
+
   Widget _buildEditButton(BuildContext context, int index, MainModel model) {
     return IconButton(
       icon: Icon(Icons.edit),
       onPressed: () {
-        model.selectProduct(index);
+        model.selectProduct(model.allProducts[index].id);
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (BuildContext context) {
@@ -40,9 +48,10 @@ class _ProductsListPageState extends State<ProductsListPage> {
               ),
               key: Key(model.allProducts[index].title),
               onDismissed: (DismissDirection direction) {
-                model.selectProduct(index);
+                model.selectProduct(model.allProducts[index].id);
                 if (direction == DismissDirection.endToStart) {
                   model.deleteProduct();
+                  model.showSuccessToast('Item deleted successfully!');
                 }
               },
               child: Column(

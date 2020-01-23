@@ -7,36 +7,6 @@ import '../models/product.dart';
 import '../scoped-models/main.dart';
 
 class ProductPage extends StatelessWidget {
-  final int productIndex;
-  ProductPage(this.productIndex);
-
-  _showDeleteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('About to delete! Are you sure?'),
-          content: Text('This action is irreversible.'),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('CANCEL'),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            FlatButton(
-              child: Text('DELETE'),
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context, true);
-              },
-            )
-          ],
-        );
-      },
-    );
-  }
-
   Widget _buildLocationPriceTag(double price) {
     return Container(
       child: Text(
@@ -58,14 +28,19 @@ class ProductPage extends StatelessWidget {
       },
       child: ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
-          final Product product = model.allProducts[productIndex];
+          final Product product = model.selectedProduct;
           return Scaffold(
             appBar: AppBar(
               title: Text(product.title),
             ),
             body: Column(
               children: <Widget>[
-                Image.asset(product.image),
+                FadeInImage(
+                  image: NetworkImage(product.image),
+                  placeholder: AssetImage('assets/food.jpg'),
+                  height: 300.0,
+                  fit: BoxFit.cover,
+                ),
                 Container(
                   padding: EdgeInsets.all(10.0),
                   child: TitleDefault(product.title),
@@ -77,14 +52,6 @@ class ProductPage extends StatelessWidget {
                 Container(
                   child: Text(product.description),
                 ),
-                Container(
-                  padding: EdgeInsets.all(10.0),
-                  child: RaisedButton(
-                    child: Text('DELETE'),
-                    color: Theme.of(context).accentColor,
-                    onPressed: () => _showDeleteDialog(context),
-                  ),
-                )
               ],
             ),
           );
