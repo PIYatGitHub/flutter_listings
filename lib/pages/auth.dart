@@ -3,6 +3,8 @@ import 'package:scoped_model/scoped_model.dart';
 
 import '../scoped-models/main.dart';
 
+enum AuthMode { Signup, Login }
+
 class AuthPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -19,6 +21,8 @@ class _AuthPageState extends State<AuthPage> {
   final RegExp _emailMatcher = RegExp(
       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _passwordTextController = TextEditingController();
+  AuthMode _authMode = AuthMode.Login;
 
   DecorationImage _buildBgImage() {
     return DecorationImage(
@@ -33,7 +37,7 @@ class _AuthPageState extends State<AuthPage> {
 
   Widget _buildEmailTextField() {
     return TextFormField(
-      initialValue: '1@2.m', //TODO: Remove later on!
+      initialValue: 'test@test.com', //TODO: Remove later on!
       decoration: InputDecoration(
         labelText: 'Email',
         filled: true,
@@ -52,7 +56,8 @@ class _AuthPageState extends State<AuthPage> {
 
   Widget _buildPasswordTextField() {
     return TextFormField(
-      initialValue: '12746316212', //TODO: Remove later on!
+      //initialValue: '12746316212', //TODO: Remove later on!
+      controller: _passwordTextController,
       decoration: InputDecoration(
         labelText: 'Password',
         filled: true,
@@ -64,6 +69,21 @@ class _AuthPageState extends State<AuthPage> {
       },
       validator: (String value) {
         if (value.isEmpty || value.length < 6) return 'Invalid password';
+        return null;
+      },
+    );
+  }
+
+  Widget _buildPasswordConfirmTextField() {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: 'Confirm password',
+        filled: true,
+        fillColor: Colors.white,
+      ),
+      obscureText: true,
+      validator: (String value) {
+        if (_passwordTextController.text != value) return 'Password mismatch';
         return null;
       },
     );
@@ -85,21 +105,41 @@ class _AuthPageState extends State<AuthPage> {
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {
         return RaisedButton(
-          child: Text('LOGIN'),
+          child: Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGNUP'),
           textColor: Colors.white,
-          onPressed: () => _submitForm(model.login),
+          onPressed: () => _submitForm(model.login, model.signup),
         );
       },
     );
   }
 
-  void _submitForm(Function login) {
+  Widget _buildSwitchModeBtn() {
+    return FlatButton(
+      child:
+          Text('Switch to ${_authMode == AuthMode.Login ? 'Signup' : 'Login'}'),
+      onPressed: () {
+        setState(() {
+          _authMode =
+              _authMode == AuthMode.Login ? AuthMode.Signup : AuthMode.Login;
+        });
+      },
+    );
+  }
+
+  void _submitForm(Function login, Function signup) async {
     if (!_formKey.currentState.validate()) {
       return;
     }
     _formKey.currentState.save();
-    login(_loginData['email'], _loginData['password']);
-    Navigator.pushReplacementNamed(context, '/products');
+    if (_authMode == AuthMode.Login) {
+      login(_loginData['email'], _loginData['password']);
+    } else {
+      final Map<String, dynamic> successInfo =
+          await signup(_loginData['email'], _loginData['password']);
+      if (successInfo['success']) {
+        Navigator.pushReplacementNamed(context, '/products');
+      }
+    }
   }
 
   @override
@@ -130,7 +170,17 @@ class _AuthPageState extends State<AuthPage> {
                       _buildEmailTextField(),
                       _buildSizedBox(),
                       _buildPasswordTextField(),
-                      _buildListTile(),
+                      _buildSizedBox(), //new
+                      _authMode == AuthMode.Signup
+                          ? _buildPasswordConfirmTextField()
+                          : Container(), //new
+                      _authMode == AuthMode.Signup
+                          ? _buildSizedBox()
+                          : Container(), //new
+                      _buildSwitchModeBtn(), //new
+                      _authMode == AuthMode.Signup
+                          ? _buildListTile()
+                          : Container(),
                       _buildSizedBox(),
                       _buildRaisedBtn(),
                     ],

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_listings/models/product.dart';
 //import 'package:flutter_listings/models/product.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 //import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
 //PROGRESS AS OF EOD: section 12 video 13 @ end NOT QUITE FIXED YET!!!
@@ -13,9 +15,10 @@ import './pages/product.dart';
 import './scoped-models/main.dart';
 import 'pages/not_found.dart';
 
-void main() {
+Future main() async {
   //debugPaintSizeEnabled = true; //helps if you want to see the layout highlighted
   //debugPointersEnabled=true; //shows the taps on the screen
+  await DotEnv().load('.env');
   runApp(MyApp());
 }
 
