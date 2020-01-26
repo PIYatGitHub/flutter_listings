@@ -50,8 +50,9 @@ class _ProductsListPageState extends State<ProductsListPage> {
               onDismissed: (DismissDirection direction) {
                 model.selectProduct(model.allProducts[index].id);
                 if (direction == DismissDirection.endToStart) {
-                  model.deleteProduct();
-                  model.showSuccessToast('Item deleted successfully!');
+                  model.deleteProduct().then((flag) {
+                    model.showToast(flag);
+                  });
                 }
               },
               child: Column(

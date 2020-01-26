@@ -56,6 +56,10 @@ class ConnectedProductsModel extends Model {
       _isLoading = false;
       notifyListeners();
       return true;
+    }).catchError((error) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
     });
   }
 }
@@ -118,7 +122,7 @@ class ProductsModel extends ConnectedProductsModel {
     return _products[index].isFavorite;
   }
 
-  Future<Null> updateProduct(
+  Future<bool> updateProduct(
     String title,
     String description,
     double price,
@@ -152,10 +156,15 @@ class ProductsModel extends ConnectedProductsModel {
       _products[selectedProductIndex] = updatedProduct;
       _isLoading = false;
       notifyListeners();
+      return true;
+    }).catchError((error) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
     });
   }
 
-  Future<Null> deleteProduct() {
+  Future<bool> deleteProduct() {
     final deletedItemId = selectedProduct.id;
     _products.removeAt(selectedProductIndex);
     _selProductId = null;
@@ -166,6 +175,11 @@ class ProductsModel extends ConnectedProductsModel {
         .then((http.Response response) {
       _isLoading = false;
       notifyListeners();
+      return true;
+    }).catchError((error) {
+      _isLoading = false;
+      notifyListeners();
+      return false;
     });
   }
 
@@ -182,7 +196,9 @@ class ProductsModel extends ConnectedProductsModel {
   Future<Null> fetchProducts() {
     _isLoading = true;
     notifyListeners();
-    return http.get(baseUrl + 'products.json').then((http.Response response) {
+    return http
+        .get(baseUrl + 'products.json')
+        .then<Null>((http.Response response) {
       final List<Product> fetchedProdList = [];
       final Map<String, dynamic> responseData = json.decode(response.body);
       if (responseData == null) {
@@ -206,6 +222,10 @@ class ProductsModel extends ConnectedProductsModel {
       _isLoading = false;
       notifyListeners();
       _selProductId = null;
+    }).catchError((error) {
+      _isLoading = false;
+      notifyListeners();
+      return;
     });
   }
 }
@@ -230,13 +250,13 @@ class UtilityModel extends ConnectedProductsModel {
     return _isLoading;
   }
 
-  void showSuccessToast(String message) {
+  void showToast(bool flag) {
     Fluttertoast.showToast(
-        msg: message,
+        msg: flag ? 'Operation succeeded!' : 'Operation failed!',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIos: 1,
-        backgroundColor: Colors.green,
+        backgroundColor: flag ? Colors.green : Colors.red,
         textColor: Colors.white,
         fontSize: 16.0);
   }
