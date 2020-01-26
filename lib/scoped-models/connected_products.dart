@@ -199,6 +199,7 @@ class ProductsModel extends ConnectedProductsModel {
       _products = fetchedProdList;
       _isLoading = false;
       notifyListeners();
+      _selProductId = null;
     });
   }
 }

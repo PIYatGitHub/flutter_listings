@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:scoped_model/scoped_model.dart';
 
 import '../widgets/ui_elements/title_default.dart';
 import '../models/product.dart';
-import '../scoped-models/main.dart';
 
 class ProductPage extends StatelessWidget {
+  final Product product;
+  ProductPage(this.product);
+
   Widget _buildLocationPriceTag(double price) {
     return Container(
       child: Text(
@@ -26,36 +27,31 @@ class ProductPage extends StatelessWidget {
         Navigator.pop(context, false);
         return Future.value(false);
       },
-      child: ScopedModelDescendant<MainModel>(
-        builder: (BuildContext context, Widget child, MainModel model) {
-          final Product product = model.selectedProduct;
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(product.title),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(product.title),
+        ),
+        body: Column(
+          children: <Widget>[
+            FadeInImage(
+              image: NetworkImage(product.image),
+              placeholder: AssetImage('assets/food.jpg'),
+              height: 300.0,
+              fit: BoxFit.cover,
             ),
-            body: Column(
-              children: <Widget>[
-                FadeInImage(
-                  image: NetworkImage(product.image),
-                  placeholder: AssetImage('assets/food.jpg'),
-                  height: 300.0,
-                  fit: BoxFit.cover,
-                ),
-                Container(
-                  padding: EdgeInsets.all(10.0),
-                  child: TitleDefault(product.title),
-                ),
-                _buildLocationPriceTag(product.price),
-                SizedBox(
-                  height: 6.0,
-                ),
-                Container(
-                  child: Text(product.description),
-                ),
-              ],
+            Container(
+              padding: EdgeInsets.all(10.0),
+              child: TitleDefault(product.title),
             ),
-          );
-        },
+            _buildLocationPriceTag(product.price),
+            SizedBox(
+              height: 6.0,
+            ),
+            Container(
+              child: Text(product.description),
+            ),
+          ],
+        ),
       ),
     );
   }
