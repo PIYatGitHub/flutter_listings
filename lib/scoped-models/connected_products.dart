@@ -17,7 +17,7 @@ class ConnectedProductsModel extends Model {
   final String imageUrl =
       'https://cdn.pixabay.com/photo/2013/09/18/18/24/chocolate-183543_960_720.jpg';
 
-  Future<Null> addProduct(
+  Future<bool> addProduct(
     String title,
     String description,
     double price,
@@ -37,6 +37,11 @@ class ConnectedProductsModel extends Model {
     return http
         .post(baseUrl + 'products.json', body: json.encode(productData))
         .then((http.Response response) {
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
       final Map<String, dynamic> responseData = json.decode(response.body);
       final Product newProduct = Product(
         id: responseData['name'],
@@ -50,6 +55,7 @@ class ConnectedProductsModel extends Model {
       _products.add(newProduct);
       _isLoading = false;
       notifyListeners();
+      return true;
     });
   }
 }

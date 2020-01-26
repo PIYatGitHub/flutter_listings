@@ -21,13 +21,13 @@ class _ProductEditPageState extends State<ProductEditPage> {
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  _showToast(String message) {
+  _showToast(bool flag) {
     Fluttertoast.showToast(
-        msg: message,
+        msg: flag ? 'Saved successfully' : 'Saving failed!',
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIos: 1,
-        backgroundColor: Colors.green,
+        backgroundColor: flag ? Colors.green : Colors.red,
         textColor: Colors.white,
         fontSize: 16.0);
   }
@@ -148,10 +148,12 @@ class _ProductEditPageState extends State<ProductEditPage> {
         _formData['description'],
         _formData['price'],
         _formData['image'],
-      ).then((_) {
-        _showToast('Product saved successfully!');
-        Navigator.pushReplacementNamed(context, '/products')
-            .then((_) => setSelectedProduct(null));
+      ).then((bool flag) {
+        if (flag) {
+          Navigator.pushReplacementNamed(context, '/products')
+              .then((_) => setSelectedProduct(null));
+        }
+        _showToast(flag);
       });
     } else {
       updateProduct(
@@ -159,10 +161,12 @@ class _ProductEditPageState extends State<ProductEditPage> {
         _formData['description'],
         _formData['price'],
         _formData['image'],
-      ).then((_) {
-        _showToast('Product saved successfully!');
-        Navigator.pushReplacementNamed(context, '/products')
-            .then((_) => setSelectedProduct(null));
+      ).then((flag) {
+        if (flag) {
+          Navigator.pushReplacementNamed(context, '/products')
+              .then((_) => setSelectedProduct(null));
+        }
+        _showToast(flag);
       });
     }
   }
