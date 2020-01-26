@@ -16,6 +16,10 @@ class ConnectedProductsModel extends Model {
   final String baseUrl = 'https://flutterlistings.firebaseio.com/';
   final String imageUrl =
       'https://cdn.pixabay.com/photo/2013/09/18/18/24/chocolate-183543_960_720.jpg';
+}
+
+class ProductsModel extends ConnectedProductsModel {
+  bool _showFavorites = false;
 
   Future<bool> addProduct(
     String title,
@@ -62,10 +66,6 @@ class ConnectedProductsModel extends Model {
       return false;
     });
   }
-}
-
-class ProductsModel extends ConnectedProductsModel {
-  bool _showFavorites = false;
 
   List<Product> get allProducts {
     return List.from(_products);
