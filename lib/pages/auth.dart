@@ -37,7 +37,7 @@ class _AuthPageState extends State<AuthPage> {
 
   Widget _buildEmailTextField() {
     return TextFormField(
-      initialValue: 'test@test.com', //TODO: Remove later on!
+      initialValue: 'test@test.com',
       decoration: InputDecoration(
         labelText: 'Email',
         filled: true,
@@ -56,7 +56,7 @@ class _AuthPageState extends State<AuthPage> {
 
   Widget _buildPasswordTextField() {
     return TextFormField(
-      //initialValue: '12746316212', //TODO: Remove later on!
+      //initialValue: '12746316212',
       controller: _passwordTextController,
       decoration: InputDecoration(
         labelText: 'Password',
@@ -138,6 +138,23 @@ class _AuthPageState extends State<AuthPage> {
           await signup(_loginData['email'], _loginData['password']);
       if (successInfo['success']) {
         Navigator.pushReplacementNamed(context, '/products');
+      } else {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('An error occurred'),
+                content: Text(successInfo['message']),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            });
       }
     }
   }

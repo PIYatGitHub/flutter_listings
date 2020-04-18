@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
@@ -245,21 +246,30 @@ class UserModel extends ConnectedProductsModel {
   }
 
   Future<Map<String, dynamic>> signup(String email, String password) async {
-    //TODO add the .env package!!!!
-
     final Map<String, dynamic> authData = {
       'email': email,
       'password': password,
       'returnSecureToken': true
     };
 
+    final key = DotEnv().env['FIREBASE_API_KEY'];
+
     final http.Response response = await http.post(
-      'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=123456',
+      'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$key',
       body: jsonEncode(authData),
       headers: {'Content-Type': 'application/json'},
     );
-    print(json.decode(response.body));
-    return {'success': true, 'msg': 'Auth succeeded'};
+
+    final Map<String, dynamic> parsed = json.decode(response.body);
+    bool hasError = true;
+    String message = 'Signup failed';
+    if (parsed.containsKey('idToken')) {
+      hasError = false;
+      message = 'Signup succeeded';
+    } else if (parsed['error']['message'] == 'EMAIL_EXISTS') {
+      message += ' because of duplicate email.';
+    }
+    return {'success': !hasError, 'msg': message};
   }
 }
 
