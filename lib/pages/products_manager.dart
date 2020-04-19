@@ -21,7 +21,7 @@ class ProductsManager extends StatelessWidget {
             leading: Icon(Icons.shopping_basket),
             title: Text('All Products'),
             onTap: () {
-              Navigator.pushReplacementNamed(context, '/products');
+              Navigator.pushReplacementNamed(context, '/');
             },
           ),
           Divider(),
