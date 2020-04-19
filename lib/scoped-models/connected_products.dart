@@ -41,7 +41,8 @@ class ProductsModel extends ConnectedProductsModel {
     };
 
     return http
-        .post(baseUrl + 'products.json', body: json.encode(productData))
+        .post(baseUrl + 'products.json?auth=${_authenticatedUser.token}',
+            body: json.encode(productData))
         .then((http.Response response) {
       if (response.statusCode != 200 && response.statusCode != 201) {
         _isLoading = false;
@@ -143,7 +144,9 @@ class ProductsModel extends ConnectedProductsModel {
     };
 
     return http
-        .put(baseUrl + 'products/${selectedProduct.id}.json',
+        .put(
+            baseUrl +
+                'products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
             body: jsonEncode(updateData))
         .then((http.Response response) {
       final Product updatedProduct = Product(
@@ -173,7 +176,8 @@ class ProductsModel extends ConnectedProductsModel {
     _isLoading = true;
     notifyListeners();
     return http
-        .delete(baseUrl + 'products/$deletedItemId.json')
+        .delete(baseUrl +
+            'products/$deletedItemId.json?auth=${_authenticatedUser.token}')
         .then((http.Response response) {
       _isLoading = false;
       notifyListeners();
@@ -199,7 +203,7 @@ class ProductsModel extends ConnectedProductsModel {
     _isLoading = true;
     notifyListeners();
     return http
-        .get(baseUrl + 'products.json')
+        .get(baseUrl + 'products.json?auth=${_authenticatedUser.token}')
         .then<Null>((http.Response response) {
       final List<Product> fetchedProdList = [];
       final Map<String, dynamic> responseData = json.decode(response.body);
@@ -263,6 +267,10 @@ class UserModel extends ConnectedProductsModel {
     if (parsed.containsKey('idToken')) {
       hasError = false;
       message = 'Auth succeeded!';
+      _authenticatedUser = new User(
+          id: parsed['localId'],
+          email: parsed['email'],
+          token: parsed['idToken']);
     } else if (parsed['error']['message'] == 'EMAIL_NOT_FOUND') {
       message += ' Email not found.';
     } else if (parsed['error']['message'] == 'INVALID_PASSWORD') {
