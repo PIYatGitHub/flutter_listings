@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 
 import '../models/user.dart';
 import '../models/product.dart';
+import '../models/auth.dart';
 
 class ConnectedProductsModel extends Model {
   List<Product> _products = [];
@@ -236,7 +237,8 @@ class UserModel extends ConnectedProductsModel {
     return _authenticatedUser;
   }
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<Map<String, dynamic>> authenticate(String email, String password,
+      [AuthMode mode = AuthMode.Login]) async {
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> authData = {
@@ -246,54 +248,27 @@ class UserModel extends ConnectedProductsModel {
     };
 
     final key = DotEnv().env['FIREBASE_API_KEY'];
-
+    final url = mode == AuthMode.Login
+        ? 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$key'
+        : 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$key';
     final http.Response response = await http.post(
-      'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$key',
+      url,
       body: jsonEncode(authData),
       headers: {'Content-Type': 'application/json'},
     );
 
     final Map<String, dynamic> parsed = json.decode(response.body);
     bool hasError = true;
-    String message = 'SignIn failed';
+    String message = 'Auth failed!';
     if (parsed.containsKey('idToken')) {
       hasError = false;
-      message = 'SignIn succeeded';
+      message = 'Auth succeeded!';
     } else if (parsed['error']['message'] == 'EMAIL_NOT_FOUND') {
-      message += '. Email not found.';
+      message += ' Email not found.';
     } else if (parsed['error']['message'] == 'INVALID_PASSWORD') {
-      message += '. Password is invalid.';
-    }
-    _isLoading = false;
-    notifyListeners();
-    return {'success': !hasError, 'msg': message};
-  }
-
-  Future<Map<String, dynamic>> signup(String email, String password) async {
-    _isLoading = true;
-    notifyListeners();
-    final Map<String, dynamic> authData = {
-      'email': email,
-      'password': password,
-      'returnSecureToken': true
-    };
-
-    final key = DotEnv().env['FIREBASE_API_KEY'];
-
-    final http.Response response = await http.post(
-      'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$key',
-      body: jsonEncode(authData),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    final Map<String, dynamic> parsed = json.decode(response.body);
-    bool hasError = true;
-    String message = 'Signup failed';
-    if (parsed.containsKey('idToken')) {
-      hasError = false;
-      message = 'Signup succeeded';
+      message += ' Password is invalid.';
     } else if (parsed['error']['message'] == 'EMAIL_EXISTS') {
-      message += ' because of duplicate email.';
+      message += ' Email already taken.';
     }
     _isLoading = false;
     notifyListeners();

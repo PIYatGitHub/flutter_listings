@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import '../scoped-models/main.dart';
-
-enum AuthMode { Signup, Login }
+import '../models/auth.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -109,7 +108,7 @@ class _AuthPageState extends State<AuthPage> {
             : RaisedButton(
                 child: Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGNUP'),
                 textColor: Colors.white,
-                onPressed: () => _submitForm(model.login, model.signup),
+                onPressed: () => _submitForm(model.authenticate),
               );
       },
     );
@@ -128,21 +127,17 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  void _submitForm(Function login, Function signup) async {
+  void _submitForm(Function authenticate) async {
     if (!_formKey.currentState.validate()) {
       return;
     }
     _formKey.currentState.save();
-    Map<String, dynamic> successInfo;
-    if (_authMode == AuthMode.Login) {
-      successInfo = await login(_loginData['email'], _loginData['password']);
-    } else {
-      successInfo = await signup(_loginData['email'], _loginData['password']);
-    }
+    Map<String, dynamic> successInfo = await authenticate(
+        _loginData['email'], _loginData['password'], _authMode);
+
     if (successInfo['success']) {
       Navigator.pushReplacementNamed(context, '/products');
     } else {
-      print('ábout to show an error... $successInfo');
       showDialog(
         context: context,
         builder: (BuildContext context) {
