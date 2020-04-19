@@ -17,7 +17,7 @@ class ConnectedProductsModel extends Model {
   User _authenticatedUser;
   String _selProductId;
   bool _isLoading = false;
-  final String baseUrl = 'https://flutterlistings.firebaseio.com/';
+  final String baseUrl = 'https://flutterlistings.firebaseio.com';
   final String imageUrl =
       'https://cdn.pixabay.com/photo/2013/09/18/18/24/chocolate-183543_960_720.jpg';
 }
@@ -43,7 +43,7 @@ class ProductsModel extends ConnectedProductsModel {
     };
 
     return http
-        .post(baseUrl + 'products.json?auth=${_authenticatedUser.token}',
+        .post('$baseUrl/products.json?auth=${_authenticatedUser.token}',
             body: json.encode(productData))
         .then((http.Response response) {
       if (response.statusCode != 200 && response.statusCode != 201) {
@@ -107,7 +107,7 @@ class ProductsModel extends ConnectedProductsModel {
     });
   }
 
-  void toggleProductFavorite() {
+  void toggleProductFavorite() async {
     final bool isFavorite = selectedProduct.isFavorite;
     final bool newFavStatus = !isFavorite;
     final Product updatedProduct = Product(
@@ -121,6 +121,31 @@ class ProductsModel extends ConnectedProductsModel {
         userId: selectedProduct.userId);
     _products[selectedProductIndex] = updatedProduct;
     notifyListeners();
+
+    http.Response response;
+
+    if (newFavStatus) {
+      response = await http.put(
+          '$baseUrl/products/${selectedProduct.id}/whishlistUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}',
+          body: json.encode(true));
+    } else {
+      response = await http.delete(
+          '$baseUrl/products/${selectedProduct.id}/whishlistUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}');
+    }
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final Product updatedProduct = Product(
+          id: selectedProduct.id,
+          title: selectedProduct.title,
+          description: selectedProduct.description,
+          image: selectedProduct.image,
+          price: selectedProduct.price,
+          isFavorite: !newFavStatus,
+          userEmail: selectedProduct.userEmail,
+          userId: selectedProduct.userId);
+      _products[selectedProductIndex] = updatedProduct;
+      notifyListeners();
+    }
   }
 
   bool isFavorited(int index) {
@@ -147,8 +172,7 @@ class ProductsModel extends ConnectedProductsModel {
 
     return http
         .put(
-            baseUrl +
-                'products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
+            '$baseUrl/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
             body: jsonEncode(updateData))
         .then((http.Response response) {
       final Product updatedProduct = Product(
@@ -178,8 +202,8 @@ class ProductsModel extends ConnectedProductsModel {
     _isLoading = true;
     notifyListeners();
     return http
-        .delete(baseUrl +
-            'products/$deletedItemId.json?auth=${_authenticatedUser.token}')
+        .delete(
+            '$baseUrl/products/$deletedItemId.json?auth=${_authenticatedUser.token}')
         .then((http.Response response) {
       _isLoading = false;
       notifyListeners();
@@ -205,7 +229,7 @@ class ProductsModel extends ConnectedProductsModel {
     _isLoading = true;
     notifyListeners();
     return http
-        .get(baseUrl + 'products.json?auth=${_authenticatedUser.token}')
+        .get('$baseUrl/products.json?auth=${_authenticatedUser.token}')
         .then<Null>((http.Response response) {
       final List<Product> fetchedProdList = [];
       final Map<String, dynamic> responseData = json.decode(response.body);
@@ -215,15 +239,22 @@ class ProductsModel extends ConnectedProductsModel {
         return;
       }
       responseData.forEach((String productId, dynamic productData) {
+        bool isFavorited = false;
+        if (productData['whishlistUsers'] != null) {
+          isFavorited = (productData['whishlistUsers'] as Map<String, dynamic>)
+              .containsKey(_authenticatedUser.id);
+        }
+        print('results....');
+        print(productData['whishlistUsers']);
         final Product product = Product(
-          id: productId,
-          title: productData['title'],
-          description: productData['description'],
-          price: productData['price'],
-          image: productData['image'],
-          userEmail: productData['userEmail'],
-          userId: productData['userId'],
-        );
+            id: productId,
+            title: productData['title'],
+            description: productData['description'],
+            price: productData['price'],
+            image: productData['image'],
+            userEmail: productData['userEmail'],
+            userId: productData['userId'],
+            isFavorite: isFavorited);
         fetchedProdList.add(product);
       });
       _products = fetchedProdList;
