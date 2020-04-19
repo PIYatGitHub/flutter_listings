@@ -238,6 +238,7 @@ class ProductsModel extends ConnectedProductsModel {
 }
 
 class UserModel extends ConnectedProductsModel {
+  Timer _authTimer;
   User get authUser {
     return _authenticatedUser;
   }
@@ -279,6 +280,12 @@ class UserModel extends ConnectedProductsModel {
       preferences.setString('token', parsed['idToken']);
       preferences.setString('userEmail', parsed['email']);
       preferences.setString('userId', parsed['localId']);
+
+      final int expiresIn = int.parse(parsed['expiresIn']);
+      final DateTime now = DateTime.now();
+      final DateTime expiryTime = now.add(Duration(seconds: expiresIn));
+      setAuthTimeout(expiresIn);
+      preferences.setString('expiryTime', expiryTime.toIso8601String());
     } else if (parsed['error']['message'] == 'EMAIL_NOT_FOUND') {
       message += ' Email not found.';
     } else if (parsed['error']['message'] == 'INVALID_PASSWORD') {
@@ -294,20 +301,36 @@ class UserModel extends ConnectedProductsModel {
   void autoAuthenticate() async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     final String token = preferences.getString('token');
+    final String expiryTime = preferences.getString('expiryTime');
     if (token != null) {
+      final DateTime now = DateTime.now();
+      final parsedTime = DateTime.parse(expiryTime);
+      if (parsedTime.isBefore(now)) {
+        _authenticatedUser = null;
+        notifyListeners();
+        return;
+      }
       final String userEmail = preferences.getString('userEmail');
       final String userId = preferences.getString('userId');
+      final int tokenLifespan = parsedTime.difference(now).inSeconds;
+      setAuthTimeout(tokenLifespan);
       _authenticatedUser = new User(id: userId, email: userEmail, token: token);
       notifyListeners();
     }
   }
 
   void logout() async {
+    print('blazing through logout');
     _authenticatedUser = null;
+    _authTimer.cancel();
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     preferences.remove('token');
     preferences.remove('userEmail');
     preferences.remove('userId');
+  }
+
+  void setAuthTimeout(int time) {
+    _authTimer = Timer(Duration(microseconds: time), logout);
   }
 }
 
