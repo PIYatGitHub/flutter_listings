@@ -225,7 +225,7 @@ class ProductsModel extends ConnectedProductsModel {
     notifyListeners();
   }
 
-  Future<Null> fetchProducts() {
+  Future<Null> fetchProducts({userRelatedOnly = false}) {
     _isLoading = true;
     notifyListeners();
     return http
@@ -244,8 +244,6 @@ class ProductsModel extends ConnectedProductsModel {
           isFavorited = (productData['whishlistUsers'] as Map<String, dynamic>)
               .containsKey(_authenticatedUser.id);
         }
-        print('results....');
-        print(productData['whishlistUsers']);
         final Product product = Product(
             id: productId,
             title: productData['title'],
@@ -257,7 +255,11 @@ class ProductsModel extends ConnectedProductsModel {
             isFavorite: isFavorited);
         fetchedProdList.add(product);
       });
-      _products = fetchedProdList;
+      _products = userRelatedOnly
+          ? fetchedProdList.where((Product product) {
+              return product.userId == _authenticatedUser.id;
+            }).toList()
+          : fetchedProdList;
       _isLoading = false;
       notifyListeners();
       _selProductId = null;
