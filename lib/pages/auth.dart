@@ -104,11 +104,13 @@ class _AuthPageState extends State<AuthPage> {
   Widget _buildRaisedBtn() {
     return ScopedModelDescendant<MainModel>(
       builder: (BuildContext context, Widget child, MainModel model) {
-        return RaisedButton(
-          child: Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGNUP'),
-          textColor: Colors.white,
-          onPressed: () => _submitForm(model.login, model.signup),
-        );
+        return model.isLoading
+            ? CircularProgressIndicator()
+            : RaisedButton(
+                child: Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGNUP'),
+                textColor: Colors.white,
+                onPressed: () => _submitForm(model.login, model.signup),
+              );
       },
     );
   }
@@ -131,31 +133,33 @@ class _AuthPageState extends State<AuthPage> {
       return;
     }
     _formKey.currentState.save();
+    Map<String, dynamic> successInfo;
     if (_authMode == AuthMode.Login) {
-      login(_loginData['email'], _loginData['password']);
+      successInfo = await login(_loginData['email'], _loginData['password']);
     } else {
-      final Map<String, dynamic> successInfo =
-          await signup(_loginData['email'], _loginData['password']);
-      if (successInfo['success']) {
-        Navigator.pushReplacementNamed(context, '/products');
-      } else {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('An error occurred'),
-                content: Text(successInfo['message']),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text('OK'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            });
-      }
+      successInfo = await signup(_loginData['email'], _loginData['password']);
+    }
+    if (successInfo['success']) {
+      Navigator.pushReplacementNamed(context, '/products');
+    } else {
+      print('ábout to show an error... $successInfo');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('An error occurred'),
+            content: Text(successInfo['msg']),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 

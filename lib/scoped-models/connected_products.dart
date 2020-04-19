@@ -236,16 +236,42 @@ class UserModel extends ConnectedProductsModel {
     return _authenticatedUser;
   }
 
-  void login(String email, String password) {
-    _authenticatedUser = User(
-      id: '1232533',
-      email: email,
-      password: password,
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    _isLoading = true;
+    notifyListeners();
+    final Map<String, dynamic> authData = {
+      'email': email,
+      'password': password,
+      'returnSecureToken': true
+    };
+
+    final key = DotEnv().env['FIREBASE_API_KEY'];
+
+    final http.Response response = await http.post(
+      'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$key',
+      body: jsonEncode(authData),
+      headers: {'Content-Type': 'application/json'},
     );
-    print('AUTH AS: $_authenticatedUser');
+
+    final Map<String, dynamic> parsed = json.decode(response.body);
+    bool hasError = true;
+    String message = 'SignIn failed';
+    if (parsed.containsKey('idToken')) {
+      hasError = false;
+      message = 'SignIn succeeded';
+    } else if (parsed['error']['message'] == 'EMAIL_NOT_FOUND') {
+      message += '. Email not found.';
+    } else if (parsed['error']['message'] == 'INVALID_PASSWORD') {
+      message += '. Password is invalid.';
+    }
+    _isLoading = false;
+    notifyListeners();
+    return {'success': !hasError, 'msg': message};
   }
 
   Future<Map<String, dynamic>> signup(String email, String password) async {
+    _isLoading = true;
+    notifyListeners();
     final Map<String, dynamic> authData = {
       'email': email,
       'password': password,
@@ -269,6 +295,8 @@ class UserModel extends ConnectedProductsModel {
     } else if (parsed['error']['message'] == 'EMAIL_EXISTS') {
       message += ' because of duplicate email.';
     }
+    _isLoading = false;
+    notifyListeners();
     return {'success': !hasError, 'msg': message};
   }
 }

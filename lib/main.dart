@@ -6,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 //import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
-//PROGRESS AS OF EOD: section 13 video 5 @ start
+//PROGRESS AS OF EOD: section 13 video 7 @ start
 
 import './pages/auth.dart';
 import './pages/products_manager.dart';
