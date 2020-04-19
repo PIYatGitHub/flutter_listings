@@ -6,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 //import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
-//PROGRESS AS OF EOD: section 13 video 12 @ start
+//PROGRESS AS OF EOD: section 13 video 14 @ start
 
 import './pages/auth.dart';
 import './pages/products_manager.dart';
@@ -31,10 +31,16 @@ class FlutterListings extends StatefulWidget {
 
 class _FlutterListingsState extends State<FlutterListings> {
   final MainModel _model = MainModel();
+  bool _isAuthenticated = false;
 
   @override
   void initState() {
     _model.autoAuthenticate();
+    _model.userSubject.listen((bool isAuthenticated) {
+      setState(() {
+        _isAuthenticated = isAuthenticated;
+      });
+    });
     super.initState();
   }
 
@@ -52,11 +58,16 @@ class _FlutterListingsState extends State<FlutterListings> {
         // home: AuthPage(),
         routes: {
           '/': (BuildContext context) =>
-              _model.authUser == null ? AuthPage() : ProductsPage(_model),
-          '/products': (BuildContext context) => ProductsPage(_model),
-          '/productsManager': (BuildContext context) => ProductsManager(_model),
+              !_isAuthenticated ? AuthPage() : ProductsPage(_model),
+          '/productsManager': (BuildContext context) =>
+              !_isAuthenticated ? AuthPage() : ProductsManager(_model),
         },
         onGenerateRoute: (RouteSettings settings) {
+          if (!_isAuthenticated) {
+            return MaterialPageRoute<bool>(
+              builder: (BuildContext context) => AuthPage(),
+            );
+          }
           final List<String> pathElements = settings.name.split("/");
           if (pathElements[0] != '' || pathElements[1] != 'product') {
             return MaterialPageRoute<bool>(
@@ -70,7 +81,8 @@ class _FlutterListingsState extends State<FlutterListings> {
           });
           //model.selectProduct(productId);
           return MaterialPageRoute<bool>(
-            builder: (BuildContext context) => ProductPage(product),
+            builder: (BuildContext context) =>
+                !_isAuthenticated ? AuthPage() : ProductPage(product),
           );
         },
         onUnknownRoute: (RouteSettings settings) {
