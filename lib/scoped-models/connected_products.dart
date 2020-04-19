@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user.dart';
 import '../models/product.dart';
@@ -267,10 +268,17 @@ class UserModel extends ConnectedProductsModel {
     if (parsed.containsKey('idToken')) {
       hasError = false;
       message = 'Auth succeeded!';
+
       _authenticatedUser = new User(
           id: parsed['localId'],
           email: parsed['email'],
           token: parsed['idToken']);
+
+      final SharedPreferences preferences =
+          await SharedPreferences.getInstance();
+      preferences.setString('token', parsed['idToken']);
+      preferences.setString('userEmail', parsed['email']);
+      preferences.setString('userId', parsed['localId']);
     } else if (parsed['error']['message'] == 'EMAIL_NOT_FOUND') {
       message += ' Email not found.';
     } else if (parsed['error']['message'] == 'INVALID_PASSWORD') {
@@ -281,6 +289,17 @@ class UserModel extends ConnectedProductsModel {
     _isLoading = false;
     notifyListeners();
     return {'success': !hasError, 'msg': message};
+  }
+
+  void autoAuthenticate() async {
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    final String token = preferences.getString('token');
+    if (token != null) {
+      final String userEmail = preferences.getString('userEmail');
+      final String userId = preferences.getString('userId');
+      _authenticatedUser = new User(id: userId, email: userEmail, token: token);
+      notifyListeners();
+    }
   }
 }
 
