@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rxdart/subjects.dart';
 
 import '../models/user.dart';
 import '../models/product.dart';
@@ -239,6 +240,12 @@ class ProductsModel extends ConnectedProductsModel {
 
 class UserModel extends ConnectedProductsModel {
   Timer _authTimer;
+  PublishSubject<bool> _userSubject = PublishSubject();
+
+  PublishSubject<bool> get userSubject {
+    return _userSubject;
+  }
+
   User get authUser {
     return _authenticatedUser;
   }
@@ -274,6 +281,8 @@ class UserModel extends ConnectedProductsModel {
           id: parsed['localId'],
           email: parsed['email'],
           token: parsed['idToken']);
+
+      _userSubject.add(true);
 
       final SharedPreferences preferences =
           await SharedPreferences.getInstance();
@@ -313,8 +322,9 @@ class UserModel extends ConnectedProductsModel {
       final String userEmail = preferences.getString('userEmail');
       final String userId = preferences.getString('userId');
       final int tokenLifespan = parsedTime.difference(now).inSeconds;
-      setAuthTimeout(tokenLifespan);
       _authenticatedUser = new User(id: userId, email: userEmail, token: token);
+      _userSubject.add(true);
+      setAuthTimeout(tokenLifespan);
       notifyListeners();
     }
   }
@@ -330,7 +340,13 @@ class UserModel extends ConnectedProductsModel {
   }
 
   void setAuthTimeout(int time) {
-    _authTimer = Timer(Duration(microseconds: time), logout);
+    _authTimer = Timer(
+      Duration(seconds: time),
+      () {
+        logout();
+        _userSubject.add(false);
+      },
+    );
   }
 }
 
