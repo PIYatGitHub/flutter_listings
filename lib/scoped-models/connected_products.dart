@@ -301,6 +301,14 @@ class UserModel extends ConnectedProductsModel {
       notifyListeners();
     }
   }
+
+  void logout() async {
+    _authenticatedUser = null;
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.remove('token');
+    preferences.remove('userEmail');
+    preferences.remove('userId');
+  }
 }
 
 class UtilityModel extends ConnectedProductsModel {

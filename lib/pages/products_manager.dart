@@ -3,6 +3,7 @@ import 'package:flutter_listings/scoped-models/main.dart';
 
 import './product_edit.dart';
 import './product_list.dart';
+import '../widgets/ui_elements/logout_list_tile.dart';
 
 class ProductsManager extends StatelessWidget {
   final MainModel model;
@@ -23,6 +24,8 @@ class ProductsManager extends StatelessWidget {
               Navigator.pushReplacementNamed(context, '/products');
             },
           ),
+          Divider(),
+          LogoutListTile(),
         ],
       ),
     );

@@ -51,13 +51,8 @@ class _FlutterListingsState extends State<FlutterListings> {
         ),
         // home: AuthPage(),
         routes: {
-          '/': (BuildContext context) => ScopedModelDescendant(
-                builder: (BuildContext context, Widget child, MainModel model) {
-                  return model.authUser == null
-                      ? AuthPage()
-                      : ProductsPage(_model);
-                },
-              ),
+          '/': (BuildContext context) =>
+              _model.authUser == null ? AuthPage() : ProductsPage(_model),
           '/products': (BuildContext context) => ProductsPage(_model),
           '/productsManager': (BuildContext context) => ProductsManager(_model),
         },
