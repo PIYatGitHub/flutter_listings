@@ -6,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 //import 'package:flutter/rendering.dart'; //uncomment this in debug mode
 
-//PROGRESS AS OF EOD: section 13 video 7 @ start
+//PROGRESS AS OF EOD: section 13 video 12 @ start
 
 import './pages/auth.dart';
 import './pages/products_manager.dart';
@@ -19,23 +19,29 @@ Future main() async {
   //debugPaintSizeEnabled = true; //helps if you want to see the layout highlighted
   //debugPointersEnabled=true; //shows the taps on the screen
   await DotEnv().load('.env');
-  runApp(MyApp());
+  runApp(FlutterListings());
 }
 
-class MyApp extends StatefulWidget {
+class FlutterListings extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return _MyAppState();
+    return _FlutterListingsState();
   }
 }
 
-class _MyAppState extends State<MyApp> {
+class _FlutterListingsState extends State<FlutterListings> {
+  final MainModel _model = MainModel();
+
+  @override
+  void initState() {
+    _model.autoAuthenticate();
+    super.initState();
+  }
+
   @override
   Widget build(context) {
-    final MainModel model = MainModel();
-
     return ScopedModel<MainModel>(
-      model: model,
+      model: _model,
       child: MaterialApp(
         theme: ThemeData(
           brightness: Brightness.light,
@@ -45,9 +51,15 @@ class _MyAppState extends State<MyApp> {
         ),
         // home: AuthPage(),
         routes: {
-          '/': (BuildContext context) => AuthPage(),
-          '/products': (BuildContext context) => ProductsPage(model),
-          '/productsManager': (BuildContext context) => ProductsManager(model),
+          '/': (BuildContext context) => ScopedModelDescendant(
+                builder: (BuildContext context, Widget child, MainModel model) {
+                  return model.authUser == null
+                      ? AuthPage()
+                      : ProductsPage(_model);
+                },
+              ),
+          '/products': (BuildContext context) => ProductsPage(_model),
+          '/productsManager': (BuildContext context) => ProductsManager(_model),
         },
         onGenerateRoute: (RouteSettings settings) {
           final List<String> pathElements = settings.name.split("/");
@@ -58,7 +70,7 @@ class _MyAppState extends State<MyApp> {
           }
 
           final String productId = pathElements[2];
-          final Product product = model.allProducts.firstWhere((Product item) {
+          final Product product = _model.allProducts.firstWhere((Product item) {
             return item.id == productId;
           });
           //model.selectProduct(productId);
